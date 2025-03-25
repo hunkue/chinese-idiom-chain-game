@@ -30,8 +30,8 @@ class GameManager:
         print(f"本次得分：{self.score}")
 
     def show_final_idiom(self):
-        print(f"📚 最後的成語：{self.current_idiom}")
-        print(f"解釋：{self.game.idioms_dict.get[self.current_idiom]}")
+        print(f"📚 最後的成語：{self.game.current_idiom}")
+        print(f"解釋：{self.game.idioms_dict[self.game.current_idiom]}")
 
     def save_score_to_database(self):
         self.game_record.save_score(self.player_name, self.score)
@@ -47,4 +47,7 @@ class GameManager:
         while True:
             game_continue = await self.game.game_round()
             if not game_continue:
+                self.show_game_result()
+                self.show_final_idiom()
                 self.save_score_to_database()
+                break
