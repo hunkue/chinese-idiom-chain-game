@@ -39,8 +39,6 @@ class IdiomGame:
                 if user_input == "結束":
                     self.io_print("👋 離開遊戲")
                     self.timer.stop()
-                    if self.countdown_task:
-                        self.countdown_task.cancel()
                     return False 
                 
                 if user_input in self.idioms_list and user_input[0] == self.current_idiom[-1]:
@@ -60,6 +58,4 @@ class IdiomGame:
 
             except asyncio.TimeoutError:
                 self.timer.stop()
-                if self.countdown_task:
-                    self.countdown_task.cancel()
                 return self.current_idiom, self.score, False
