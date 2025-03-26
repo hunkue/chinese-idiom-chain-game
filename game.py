@@ -48,14 +48,15 @@ class IdiomGame:
                     if valid_responses:
                         self.current_idiom = random.choice(valid_responses)
                         self.io_print(f"💻 電腦接招：{self.current_idiom}")
-                        return self.current_idiom, self.score, True
+                        return True
                     else:
                         self.io_print("🎉 恭喜你贏了！你的對手找不到可以接的成語！")
                         self.current_idiom = user_input
-                        return user_input, self.score, False
+                        return False
                 else:
                     self.io_print("❌ 錯誤！再想想看 🤔")
 
             except asyncio.TimeoutError:
+                self.io_print("\n⌛ 時間到！遊戲結束！")
                 self.timer.stop()
-                return self.current_idiom, self.score, False
+                return False
