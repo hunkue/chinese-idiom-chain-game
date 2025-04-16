@@ -13,7 +13,8 @@ class IdiomGameGUI:
         self.game = IdiomGame()
         self.game_record = GameRecord()
         self.player_name = ""
-        self.remaining_time = 30 
+        self.remaining_time = 30
+        self.timer_after_id  = None
 
         # 介面設計
         self.label_welcome = tk.Label(root,
@@ -88,12 +89,16 @@ class IdiomGameGUI:
         self.label_current_idiom.config(text=f"💻 電腦先攻：{self.game.current_idiom}")
     
     def update_timer(self):
-        if self.remaining_time > 0:
-            self.label_timer.config(text=f"倒數計時：{self.remaining_time} 秒")
-            self.remaining_time -= 1
-            self.root.after(1000, self.update_timer)
-        else:
-            self.end_game()
+        if self.timer_after_id:
+            self.root.after_cancel(self.timer_after_id)
+        def countdown():
+            if self.remaining_time > 0:
+                self.label_timer.config(text=f"倒數計時：{self.remaining_time} 秒")
+                self.remaining_time -= 1
+                self.timer_after_id = self.root.after(1000, countdown)
+            else:
+                self.end_game()
+        countdown()
 
     def check_answer(self):
         user_input = self.entry_idiom.get().strip()
@@ -111,6 +116,8 @@ class IdiomGameGUI:
             if valid_responses:
                 self.game.current_idiom = random.choice(valid_responses)
                 self.label_current_idiom.config(text=f"💻 電腦接招：{self.game.current_idiom}")
+                self.remaining_time = 30
+                self.update_timer()
             else:
                 self.text_log.insert(tk.END, "🎉 你贏了！電腦無法接龍！\n")
                 self.end_game()
