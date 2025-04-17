@@ -8,7 +8,7 @@ class IdiomGameGUI:
     def __init__(self, root,):
         self.root = root 
         self.root.title("成語接龍遊戲")
-        self.root.geometry("800x600")
+        self.root.geometry("800x800")
 
         self.game = IdiomGame()
         self.game_record = GameRecord()
@@ -28,8 +28,6 @@ class IdiomGameGUI:
                                         1️⃣ 由電腦先出題，答對者可獲得 5 分
                                         2️⃣ 若當局遊戲持有 3 分以上分數，可用 3 分換取 1 次求救
                                         3️⃣ 每局回答時間限制為 30 秒
-                                        4️⃣ 若遊戲途中想離開，請輸入「結束」
-                                        歡迎進入成語接龍遊戲
                                         """, 
                                     font=("PingFang TC", 12),
                                     justify="left")
@@ -69,8 +67,26 @@ class IdiomGameGUI:
                                     state=tk.DISABLED)
         self.btn_submit.pack()
 
-        self.text_log = tk.Text(root, height=10, width=50)
+        self.text_log = tk.Text(root, height=15, width=40)
         self.text_log.pack()
+
+        self.btn_restart_same = tk.Button(root,
+                                          text="再玩一次（同一位玩家）",
+                                          command=self.restart_same_player,
+                                          state=tk.DISABLED)
+        self.btn_restart_same.pack()
+
+        self.btn_restart_new = tk.Button(root,
+                                         text="重新開始（更換玩家）",
+                                         command=self.restart_new_player,
+                                         state=tk.DISABLED)
+        self.btn_restart_new.pack()
+
+        self.btn_exit = tk.Button(root,
+                                  text="離開遊戲",
+                                  command=self.root.quit,
+                                  state=tk.NORMAL)
+        self.btn_exit.pack()
 
     def start_game(self):
         self.player_name = self.entry_name.get().strip()
@@ -81,6 +97,8 @@ class IdiomGameGUI:
         self.text_log.insert(tk.END, f"玩家 {self.player_name} 開始遊戲!\n")
         self.btn_start.config(state=tk.DISABLED)
         self.btn_submit.config(state=tk.NORMAL)
+        self.btn_restart_same.config(state=tk.NORMAL)
+        self.btn_restart_new.config(state=tk.NORMAL)
 
         self.remaining_time = 30
         self.update_timer()
@@ -103,10 +121,6 @@ class IdiomGameGUI:
     def check_answer(self):
         user_input = self.entry_idiom.get().strip()
         self.entry_idiom.delete(0, tk.END)
-
-        if user_input == "結束":
-            self.end_game()
-            return
         
         if user_input in self.game.idioms_list and user_input[0] == self.game.current_idiom[-1]:
             self.game.score += 5
@@ -125,10 +139,45 @@ class IdiomGameGUI:
             self.text_log.insert(tk.END, "❌ 錯誤！請再試一次。\n")
     
     def end_game(self):
+        if self.timer_after_id:
+            self.root.after_cancel(self.timer_after_id)
+            self.timer_after_id = None
+        
         self.text_log.insert(tk.END, f"遊戲結束！{self.player_name} 總得分：{self.game.score}\n")
         self.game_record.save_score(self.player_name, self.game.score)
         self.btn_submit.config(state=tk.DISABLED)
         messagebox.showinfo("遊戲結束", f"{self.player_name} 本次得分：{self.game.score}")
+
+    def restart_same_player(self):
+        self.game = IdiomGame()  # 重新設置遊戲，要初始化新的遊戲邏輯
+        self.remaining_time = 30
+        self.text_log.insert(tk.END, f"🔁{self.player_name} 再次挑戰新一輪！\n")
+        self.entry_idiom.delete(0, tk.END)
+        self.label_current_idiom.config(text="")
+
+        self.game.current_idiom = random.choice(self.game.idioms_list)
+        self.label_current_idiom.config(text=f"💻 電腦先攻：{self.game.current_idiom}")
+        self.update_timer()
+
+        self.btn_submit.config(state=tk.NORMAL)
+
+    def restart_new_player(self):
+        if self.timer_after_id:
+            self.root.after_cancel(self.timer_after_id)
+            self.timer_after_id = None
+        
+        self.game = IdiomGame()  # 重新設置遊戲，要初始化新的遊戲邏輯
+        self.remaining_time = 30
+        self.player_name = ""
+        self.entry_name.delete(0, tk.END)
+        self.entry_idiom.delete(0, tk.END)
+        self.text_log.delete("1.0", tk.END)
+        self.label_current_idiom.config(text="")
+        self.label_timer.config(text="倒數計時：30 秒")
+        self.btn_start.config(state=tk.NORMAL)
+        self.btn_submit.config(state=tk.DISABLED)
+        self.btn_restart_same.config(state=tk.DISABLED)
+        self.btn_restart_new.config(state=tk.DISABLED)
 
 if __name__ == "__main__":
     root = tk.Tk()
