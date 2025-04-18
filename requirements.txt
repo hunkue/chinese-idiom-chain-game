@@ -1,0 +1,5 @@
+aioconsole==0.8.1
+dotenv==0.9.9
+mysql-connector-python==9.3.0
+PyMySQL==1.1.1
+python-dotenv==1.1.0
