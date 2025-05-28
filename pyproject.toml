@@ -1,0 +1,13 @@
+[project]
+name = "idiom-chain"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aioconsole>=0.8.1",
+    "cryptography>=45.0.3",
+    "mysqlclient>=2.2.7",
+    "pymysql>=1.1.1",
+    "python-dotenv>=1.1.0",
+]
