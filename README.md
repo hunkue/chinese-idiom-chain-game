@@ -18,13 +18,29 @@ Future plan: deployment to a personal website via Django — [hunkue.com](https:
 
 ```
 chinese-idiom-chain-game/
-├── idiom_chain.py             # Main GUI program
+├── idiom_chain.py             # Main GUI entry point
+├── main.py                    # CLI entry point
 ├── game.py                    # Core game logic
 ├── game_timer.py              # Countdown timer module
-├── records_database.py        # Game record database handler
-├── idiom_database.py          # Idiom database loader
-├── pyproject.toml             # uv-managed project configuration
-├── .env                       # Environment variable configuration (DO NOT commit)
+├── game_manager.py            # Game session controller
+├── records_database.py        # Handles player score records
+├── idiom_database.py          # Handles idiom data from database
+├── first-time-execute/        # One-time setup scripts
+│   ├── change_csv_header.py   # Adjusts CSV headers to expected format
+│   ├── data_test.py           # Data validation/testing
+│   ├── import_data.py         # Imports idiom data into DB
+│   └── record_data.py         # Inserts sample score records
+├── previous-test-version/     # Legacy or experimental game interfaces
+│   ├── idiom_solitaire_origin.py
+│   ├── idiom_solitaire_async.py
+│   ├── idiom_solitaire_sync.py
+│   ├── idiom_solitaire_async_success.py
+│   └── idiom_solitaire_select.py
+├── pyproject.toml             # uv dependency and project config
+├── uv.lock                    # Lockfile for uv dependencies
+├── .env                       # Local environment variables (ignored)
+├── LICENSE                    # MIT license
+├── README.md                  # Project documentation
 └── ...
 ```
 
@@ -39,30 +55,31 @@ git clone https://github.com/hunkue/chinese-idiom-chain-game.git
 cd chinese-idiom-chain-game
 ```
 
-### 2. Install System Dependencies (macOS)
+### 2. Install System Dependencies (macOS example)
 
 ```bash
 brew install mysql pkg-config
 ```
 
-### 3. Set Up Virtual Environment with uv
+> For other platforms, please refer to the [official MySQL installation guide](https://dev.mysql.com/doc/).
 
-```bash
-uv venv
-uv init  # Only needed once if pyproject.toml does not exist
-```
-
-### 4. Add Required Python Packages
-
-```bash
-uv add aioconsole cryptography mysqlclient pymysql python-dotenv 
-```
-
-> (Alternatively, use `PyMySQL` instead of `mysqlclient` if you prefer pure Python drivers)
 
 ---
 
-### 5. Setup `.env` File
+### 3. Set Up Environment with `uv`
+
+```bash
+uv sync
+source .venv/bin/activate
+```
+
+This installs all dependencies and activates the virtual environment.  
+You can inspect or modify dependencies in `pyproject.toml`.
+
+
+---
+
+### 4. Setup `.env` File
 
 Create a `.env` file in the project root to store your environment variables.  
 **DO NOT commit this file to version control.**
@@ -78,32 +95,22 @@ DB_NAME=game_db
 
 ---
 
-### 6. Create and Initialize MySQL Database
+### 5. Prepare Initial Idiom Data (One-time Setup)
 
-```sql
-CREATE DATABASE game_db CHARACTER SET utf8mb4;
+Before running the game, you must initialize the database and import idioms.
 
-USE game_db;
+Please download the latest idiom dataset manually from Taiwan Ministry of Education:  
+🔗 https://language.moe.gov.tw/001/Upload/Files/site_content/M0001/respub/dict_idiomsdict_download.html
 
-CREATE TABLE idioms (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    idiom VARCHAR(20) NOT NULL,
-    definition TEXT
-);
+The downloaded `.csv` file is **not included** (intentionally `.gitignore`) to ensure users always fetch the latest version.
 
-CREATE TABLE records (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    player_name VARCHAR(50),
-    score INT,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-```
+Then run the initialization scripts located in `first-time-execute/`.  
+*(Confirm these match your repo content. Adjust names if needed.)*
 
-Import idiom data into the `idioms` table.
 
 ---
 
-### 7. Run the Application
+### 6. Run the Application
 
 #### GUI version
 
@@ -124,8 +131,20 @@ uv run main.py
 - 🧠 Automatic idiom prompts and answer validation
 - ⏱️ 30-second countdown timer
 - 💾 MySQL-based idiom and score persistence
-- 🎨 tkinter-based GUI
+- 🎨 GUI built with `tkinter`  
+- 🚨 **Rescue request:** spend 3 points to get a “help” hint (feature still in development)  
 - 🌐 Future Django web version in progress
+
+---
+
+## 🧭 Roadmap
+
+| Feature                            | Status           |
+|------------------------------------|------------------|
+| GUI with tkinter                   | ✅ Completed      |
+| CLI version                        | ✅ Completed      |
+| Rescue request (3 points → hint)   | 🚧 In Development |
+| Django Web UI                      | 🚧 In Progress    |
 
 ---
 
