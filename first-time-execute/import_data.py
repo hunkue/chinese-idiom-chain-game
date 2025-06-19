@@ -1,4 +1,5 @@
-import mysql.connector
+import pymysql
+import pymysql.cursors
 import csv
 import os
 from dotenv import load_dotenv
@@ -21,10 +22,12 @@ CREATE TABLE IF NOT EXISTS idioms (
 );
 """
 
-conn = mysql.connector.connect(host="localhost",
-                               user="root",
-                               password=db_password,
-                               database="game_db")
+conn = pymysql.connect(host="localhost",
+                       user="root",
+                       password=db_password,
+                       database="game_db",
+                       charset="utf8mb4",
+                       cursorclass=pymysql.cursors.DictCursor)
 
 cursor = conn.cursor()
 cursor.execute(create_table_sql)
