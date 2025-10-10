@@ -2,7 +2,15 @@ import sys
 import types
 import unittest
 from unittest.mock import Mock, patch
-import tkinter as tk
+
+try:
+    import tkinter as tk
+except ModuleNotFoundError:  # pragma: no cover - fallback for CI where tkinter is absent
+    class _DummyTkModule:
+        NORMAL = "normal"
+        DISABLED = "disabled"
+
+    tk = _DummyTkModule()
 
 if "aioconsole" not in sys.modules:
     aioconsole_stub = types.ModuleType("aioconsole")
